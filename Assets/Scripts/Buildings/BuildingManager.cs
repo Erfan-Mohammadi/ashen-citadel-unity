@@ -62,6 +62,7 @@ namespace AshenCitadel.Buildings
             ApplyUpgradeEffects(type);
             OnBuildingUpgraded?.Invoke(type, levels[type]);
             Missions.MissionManager.Instance?.Track("upgrade");
+            Core.AudioManager.Instance?.Play("upgrade");
             SaveSystem.Instance?.Save();
             return true;
         }

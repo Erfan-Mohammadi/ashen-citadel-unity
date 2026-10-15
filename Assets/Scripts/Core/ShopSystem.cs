@@ -36,6 +36,7 @@ namespace AshenCitadel.Core
                 if (p.id != packId) continue;
                 ResourceManager.Instance?.Add(ResourceType.Crystal, p.crystals);
                 UI.UINotifier.Instance?.Show(p.crystals + " کریستال اضافه شد!");
+                AudioManager.Instance?.Play("buy");
                 OnPurchase?.Invoke();
                 SaveSystem.Instance?.Save();
                 return true;

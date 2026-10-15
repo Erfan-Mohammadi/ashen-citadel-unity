@@ -17,6 +17,7 @@ namespace AshenCitadel.UI
         public void Show(string messageFa)
         {
             Debug.Log($"[Ashen] {messageFa}");
+            Core.AudioManager.Instance?.Play("notify", 0.5f);
             OnNotify?.Invoke(messageFa);
         }
     }
