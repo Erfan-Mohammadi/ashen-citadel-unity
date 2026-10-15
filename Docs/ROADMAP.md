@@ -1,24 +1,20 @@
 # Roadmap — Ashen Citadel
 
 ## Done
-- [x] Core loop (resources, heat, buildings, heroes, defense, missions, save)
-- [x] Runtime mobile UI (AutoUIBuilder)
-- [x] World map markers
-- [x] Defense visual units
-- [x] Tutorial (Persian)
-- [x] Shop panel (dev crystal packs)
-- [x] Snow VFX
-- [x] Combat floating damage VFX
-- [x] Web HTML5 vertical slice
+- [x] Core loop
+- [x] AutoUIBuilder mobile HUD
+- [x] World map + snow VFX
+- [x] Defense units + floating damage
+- [x] Tutorial (FA)
+- [x] Shop (dev packs)
+- [x] Procedural audio + mute
+- [x] Web HTML5 slice
 
 ## Next
-- [ ] Building sprite art pass
-- [ ] Real audio (SFX + ambient)
-- [ ] Unity IAP wire (replace GrantDevPack)
-- [ ] Android release APK + store listing
-- [ ] Soft-launch analytics
+- [ ] Art sprites for buildings
+- [ ] Unity IAP (real money)
+- [ ] Android release APK
+- [ ] Analytics soft-launch
 
 ## Stretch
-- Alliance / chat
-- Seasonal events
-- Cloud save
+- Alliance, seasons, cloud save

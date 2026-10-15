@@ -21,6 +21,7 @@ namespace AshenCitadel.UI
             Ensure<SaveSystem>();
             Ensure<UINotifier>();
             Ensure<ShopSystem>();
+            Ensure<AudioManager>();
 
             if (FindObjectOfType<AutoUIBuilder>() == null)
             {
