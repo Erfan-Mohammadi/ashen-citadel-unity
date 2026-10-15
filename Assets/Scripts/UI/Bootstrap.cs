@@ -20,6 +20,7 @@ namespace AshenCitadel.UI
             Ensure<MissionManager>();
             Ensure<SaveSystem>();
             Ensure<UINotifier>();
+            Ensure<ShopSystem>();
 
             if (FindObjectOfType<AutoUIBuilder>() == null)
             {
@@ -34,13 +35,6 @@ namespace AshenCitadel.UI
             var go = new GameObject(typeof(T).Name);
             go.AddComponent<T>();
             DontDestroyOnLoad(go);
-        }
-
-        public void OnClickStartGame()
-        {
-            bool fromSave = SaveSystem.Instance != null && SaveSystem.Instance.HasSave();
-            GameManager.Instance?.StartGame(fromSave);
-            UINotifier.Instance?.Show(fromSave ? "خوش برگشتی، فرمانده!" : "به دژ خاکستر خوش آمدی، فرمانده!");
         }
     }
 }

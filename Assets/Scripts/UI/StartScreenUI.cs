@@ -37,6 +37,16 @@ namespace AshenCitadel.UI
             UINotifier.Instance?.Show(fromSave ? "خوش برگشتی، فرمانده!" : "به دژ خاکستر خوش آمدی، فرمانده!");
             if (root != null) root.SetActive(false);
             else gameObject.SetActive(false);
+
+            if (GameManager.Instance != null && !GameManager.Instance.tutorialDone)
+            {
+                var canvas = GameObject.Find("AshenCanvas");
+                if (canvas != null)
+                {
+                    var tut = canvas.AddComponent<TutorialUI>();
+                    tut.Build(canvas.transform);
+                }
+            }
         }
     }
 }
