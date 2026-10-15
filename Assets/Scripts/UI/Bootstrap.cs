@@ -20,6 +20,12 @@ namespace AshenCitadel.UI
             Ensure<MissionManager>();
             Ensure<SaveSystem>();
             Ensure<UINotifier>();
+
+            if (FindObjectOfType<AutoUIBuilder>() == null)
+            {
+                var ui = new GameObject("AutoUIBuilder");
+                ui.AddComponent<AutoUIBuilder>();
+            }
         }
 
         void Ensure<T>() where T : Component

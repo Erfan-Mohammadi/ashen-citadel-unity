@@ -1,39 +1,29 @@
 # Ashen Citadel — Unity (دژ خاکستر)
 
-اسکلت Unity برای نسخه موبایل حرفه‌ای. منطق از پروتوتایپ HTML5 (v1.0) پورت شده است.
+نسخه موبایل حرفه‌ای — **یک‌کلیک Play** بدون ساخت دستی UI.
 
-## نیازمندی
-- **Unity 2022.3 LTS** یا جدیدتر
-- ماژول‌ها: Android / iOS Build Support
-- (اختیاری) TextMesh Pro برای UI فارسی
+## سریع‌ترین شروع (۳۰ ثانیه)
 
-## راه‌اندازی (۵ دقیقه)
+1. Unity Hub → پروژه **2D** جدید (2022.3+ LTS)
+2. کل پوشه `Assets/Scripts` این ریپو را داخل `Assets` پروژه کپی کن
+3. صحنه خالی → Create Empty → نام `Bootstrap`
+4. Add Component → `AshenCitadel.UI.Bootstrap`
+5. **Play**
 
-1. Unity Hub → **New project** → 2D (یا 3D URP)
-2. نام: `AshenCitadel`
-3. پوشه `Assets/Scripts` این ریپو را داخل پروژه کپی کن
-4. صحنه جدید: `Assets/Scenes/Main.unity`
-5. Empty بساز → `Bootstrap` → کامپوننت `AshenCitadel.UI.Bootstrap`
-6. Play
-7. دکمه UI → `OnClickStartGame`
+خودکار ساخته می‌شود:
+- همه مدیران بازی (منابع، گرما، ساختمان، قهرمان، دفاع، مأموریت، ذخیره)
+- کل HUD موبایل (منابع، گرما، دکمه‌ها، پنل‌ها، شروع، دفاع)
+
+## ریپوها
+- Unity: https://github.com/Erfan-Mohammadi/ashen-citadel-unity
+- پروتوتایپ وب: https://github.com/Erfan-Mohammadi/ashen-citadel
+
+```bash
+git clone https://github.com/Erfan-Mohammadi/ashen-citadel.git
+cd ashen-citadel && npx serve .
+```
 
 ## معماری
-
 ```
-Assets/Scripts/
-  Core/       GameManager, ResourceManager, HeatSystem, SaveSystem
-  Buildings/  BuildingManager
-  Heroes/     HeroManager
-  Defense/    DefenseCombat
-  Missions/   MissionManager
-  UI/         Bootstrap, UINotifier
+Scripts/Core Buildings Heroes Defense Missions UI(AutoUIBuilder)
 ```
-
-## مراحل بعد
-1. UI Canvas موبایل
-2. اسپریت ساختمان‌ها
-3. VFX دفاع
-4. Tutorial فارسی
-5. Build Android APK
-
-پروتوتایپ وب: https://github.com/Erfan-Mohammadi/ashen-citadel
