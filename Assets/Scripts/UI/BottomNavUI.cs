@@ -10,6 +10,7 @@ namespace AshenCitadel.UI
         public HeroPanelUI heroPanel;
         public MissionPanelUI missionPanel;
         public DefenseUI defenseUI;
+        public ShopPanelUI shopPanel;
 
         void Start()
         {
@@ -32,6 +33,7 @@ namespace AshenCitadel.UI
             buildingPanel?.Hide();
             heroPanel?.Hide();
             missionPanel?.Hide();
+            shopPanel?.Hide();
         }
 
         public void OnBuild()
@@ -62,7 +64,13 @@ namespace AshenCitadel.UI
 
         public void OnAlliance()
         {
-            UINotifier.Instance?.Show("اتحاد به‌زودی باز می‌شود — فعلاً دژ خودت را تقویت کن.");
+            if (shopPanel != null)
+            {
+                if (shopPanel.IsOpen) shopPanel.Hide();
+                else { CloseAllPanels(); shopPanel.Show(); }
+            }
+            else
+                UINotifier.Instance?.Show("فروشگاه به‌زودی");
         }
     }
 }
