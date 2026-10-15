@@ -75,6 +75,7 @@ namespace AshenCitadel.Defense
                 });
             }
 
+            Core.AudioManager.Instance?.Play("wave");
             OnWaveStarted?.Invoke();
             OnCombatUpdated?.Invoke();
         }
@@ -132,6 +133,7 @@ namespace AshenCitadel.Defense
                 wave++;
                 Missions.MissionManager.Instance?.Track("defend");
                 SaveSystem.Instance?.Save();
+                Core.AudioManager.Instance?.Play("win");
                 OnWaveWon?.Invoke();
             }
             else if (!heroesAlive || breach)
@@ -140,6 +142,7 @@ namespace AshenCitadel.Defense
                 HeatSystem.Instance?.ApplyDefeatPenalty();
                 ResourceManager.Instance?.Add(ResourceType.Food, -20);
                 SaveSystem.Instance?.Save();
+                Core.AudioManager.Instance?.Play("lose");
                 OnWaveLost?.Invoke();
             }
         }

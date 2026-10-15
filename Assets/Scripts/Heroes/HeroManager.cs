@@ -35,6 +35,7 @@ namespace AshenCitadel.Heroes
             if (ResourceManager.Instance.Get(ResourceType.Crystal) < crystalCost) return false;
             ResourceManager.Instance.Add(ResourceType.Crystal, -crystalCost);
             h.owned = true;
+            Core.AudioManager.Instance?.Play("buy");
             OnHeroesChanged?.Invoke();
             SaveSystem.Instance?.Save();
             return true;
@@ -56,6 +57,7 @@ namespace AshenCitadel.Heroes
             h.atk = Mathf.Floor(h.atk * (1.07f + g * 0.02f));
             h.def = Mathf.Floor(h.def * (1.06f + g * 0.02f));
             Missions.MissionManager.Instance?.Track("hero");
+            Core.AudioManager.Instance?.Play("upgrade");
             OnHeroesChanged?.Invoke();
             SaveSystem.Instance?.Save();
             return true;
@@ -76,6 +78,7 @@ namespace AshenCitadel.Heroes
             h.atk = Mathf.Floor(h.atk * 1.15f);
             h.def = Mathf.Floor(h.def * 1.12f);
             Missions.MissionManager.Instance?.Track("hero");
+            Core.AudioManager.Instance?.Play("upgrade");
             OnHeroesChanged?.Invoke();
             SaveSystem.Instance?.Save();
             return true;
