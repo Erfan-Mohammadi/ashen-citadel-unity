@@ -1,29 +1,24 @@
 # Ashen Citadel — Unity (دژ خاکستر)
 
-نسخه موبایل حرفه‌ای — **یک‌کلیک Play** بدون ساخت دستی UI.
+**یک‌کلیک Play** — منطق کامل + HUD موبایل + نقشه پایه + دفاع بصری.
 
-## سریع‌ترین شروع (۳۰ ثانیه)
+## شروع (۳۰ ثانیه)
+1. Unity 2022.3+ → پروژه 2D
+2. کپی `Assets/Scripts` داخل پروژه
+3. Empty → `Bootstrap` component
+4. **Play**
 
-1. Unity Hub → پروژه **2D** جدید (2022.3+ LTS)
-2. کل پوشه `Assets/Scripts` این ریپو را داخل `Assets` پروژه کپی کن
-3. صحنه خالی → Create Empty → نام `Bootstrap`
-4. Add Component → `AshenCitadel.UI.Bootstrap`
-5. **Play**
+## ریپو
+https://github.com/Erfan-Mohammadi/ashen-citadel-unity
 
-خودکار ساخته می‌شود:
-- همه مدیران بازی (منابع، گرما، ساختمان، قهرمان، دفاع، مأموریت، ذخیره)
-- کل HUD موبایل (منابع، گرما، دکمه‌ها، پنل‌ها، شروع، دفاع)
+وب: https://github.com/Erfan-Mohammadi/ashen-citadel
 
-## ریپوها
-- Unity: https://github.com/Erfan-Mohammadi/ashen-citadel-unity
-- پروتوتایپ وب: https://github.com/Erfan-Mohammadi/ashen-citadel
+## شامل
+- Core: منابع، گرما، ذخیره
+- ساختمان / قهرمان / مأموریت / دفاع
+- AutoUIBuilder (کل UI در Runtime)
+- WorldView (نقشه دژ)
+- DefenseView (یونیت‌های نبرد)
 
-```bash
-git clone https://github.com/Erfan-Mohammadi/ashen-citadel.git
-cd ashen-citadel && npx serve .
-```
-
-## معماری
-```
-Scripts/Core Buildings Heroes Defense Missions UI(AutoUIBuilder)
-```
+## Build اندروید
+`Docs/ANDROID_BUILD.md`
