@@ -9,25 +9,25 @@ namespace AshenCitadel.World
     {
         public RectTransform mapRoot;
         readonly Dictionary<BuildingType, RectTransform> _markers = new Dictionary<BuildingType, RectTransform>();
+        readonly Dictionary<BuildingType, Image> _icons = new Dictionary<BuildingType, Image>();
         Font _font;
 
-        static readonly Color Ground = new Color(0.08f, 0.12f, 0.18f, 1f);
+        static readonly Color Ground = new Color(0.07f, 0.11f, 0.17f, 1f);
 
         struct Slot
         {
             public BuildingType type;
             public Vector2 anchored;
             public string labelFa;
-            public Color color;
         }
 
         static readonly Slot[] Layout =
         {
-            new Slot { type = BuildingType.Citadel, anchored = new Vector2(0, 40), labelFa = "دژ", color = new Color(0.9f, 0.45f, 0.15f) },
-            new Slot { type = BuildingType.Woodcamp, anchored = new Vector2(-280, -80), labelFa = "چوب", color = new Color(0.4f, 0.7f, 0.35f) },
-            new Slot { type = BuildingType.Farm, anchored = new Vector2(280, -80), labelFa = "مزرعه", color = new Color(0.85f, 0.75f, 0.3f) },
-            new Slot { type = BuildingType.Coalpit, anchored = new Vector2(-180, -220), labelFa = "زغال", color = new Color(0.35f, 0.35f, 0.4f) },
-            new Slot { type = BuildingType.Barracks, anchored = new Vector2(180, -220), labelFa = "نیرو", color = new Color(0.55f, 0.35f, 0.7f) },
+            new Slot { type = BuildingType.Citadel, anchored = new Vector2(0, 50), labelFa = "دژ" },
+            new Slot { type = BuildingType.Woodcamp, anchored = new Vector2(-280, -70), labelFa = "چوب" },
+            new Slot { type = BuildingType.Farm, anchored = new Vector2(280, -70), labelFa = "مزرعه" },
+            new Slot { type = BuildingType.Coalpit, anchored = new Vector2(-180, -230), labelFa = "زغال" },
+            new Slot { type = BuildingType.Barracks, anchored = new Vector2(180, -230), labelFa = "نیرو" },
         };
 
         public void Build(RectTransform parent)
@@ -39,19 +39,21 @@ namespace AshenCitadel.World
             mapGo.transform.SetParent(parent, false);
             mapRoot = mapGo.GetComponent<RectTransform>();
             mapRoot.anchorMin = mapRoot.anchorMax = new Vector2(0.5f, 0.5f);
-            mapRoot.sizeDelta = new Vector2(980, 900);
-            mapRoot.anchoredPosition = new Vector2(0, 80);
+            mapRoot.sizeDelta = new Vector2(980, 920);
+            mapRoot.anchoredPosition = new Vector2(0, 70);
             mapGo.GetComponent<Image>().color = Ground;
 
-            for (int i = 0; i < 40; i++)
-            {
-                var fleck = new GameObject("Snow" + i, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
-                fleck.transform.SetParent(mapRoot, false);
-                var rt = fleck.GetComponent<RectTransform>();
-                rt.sizeDelta = new Vector2(Random.Range(4, 12), Random.Range(4, 12));
-                rt.anchoredPosition = new Vector2(Random.Range(-460, 460), Random.Range(-420, 420));
-                fleck.GetComponent<Image>().color = new Color(1, 1, 1, Random.Range(0.05f, 0.18f));
-            }
+            var ring = new GameObject("Ring", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            ring.transform.SetParent(mapRoot, false);
+            ring.GetComponent<RectTransform>().sizeDelta = new Vector2(560, 560);
+            ring.GetComponent<Image>().color = new Color(0.12f, 0.18f, 0.28f, 0.35f);
+
+            var path = new GameObject("Path", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            path.transform.SetParent(mapRoot, false);
+            var prt = path.GetComponent<RectTransform>();
+            prt.sizeDelta = new Vector2(80, 280);
+            prt.anchoredPosition = new Vector2(0, -90);
+            path.GetComponent<Image>().color = new Color(0.15f, 0.18f, 0.22f, 0.6f);
 
             foreach (var s in Layout) CreateMarker(s);
 
@@ -65,38 +67,58 @@ namespace AshenCitadel.World
             var go = new GameObject(s.type.ToString(), typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
             go.transform.SetParent(mapRoot, false);
             var rt = go.GetComponent<RectTransform>();
-            rt.sizeDelta = s.type == BuildingType.Citadel ? new Vector2(140, 140) : new Vector2(110, 110);
+            float size = s.type == BuildingType.Citadel ? 168f : 128f;
+            rt.sizeDelta = new Vector2(size, size);
             rt.anchoredPosition = s.anchored;
-            go.GetComponent<Image>().color = s.color;
+
+            var img = go.GetComponent<Image>();
+            int lv = BuildingManager.Instance != null ? BuildingManager.Instance.GetLevel(s.type) : 1;
+            img.sprite = BuildingSpriteFactory.Create(s.type, Mathf.Max(1, lv));
+            img.preserveAspect = true;
+            img.color = Color.white;
 
             var type = s.type;
             go.GetComponent<Button>().onClick.AddListener(() =>
             {
-                var panel = FindObjectOfType<UI.BuildingPanelUI>();
+                var panel = Object.FindObjectOfType<UI.BuildingPanelUI>();
                 panel?.Show(type);
+                Core.AudioManager.Instance?.Play("click");
             });
+
+            var badge = new GameObject("Badge", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            badge.transform.SetParent(go.transform, false);
+            var brt = badge.GetComponent<RectTransform>();
+            brt.anchorMin = brt.anchorMax = new Vector2(1f, 1f);
+            brt.pivot = new Vector2(1f, 1f);
+            brt.anchoredPosition = new Vector2(8, 8);
+            brt.sizeDelta = new Vector2(40, 40);
+            badge.GetComponent<Image>().color = new Color(0.15f, 0.2f, 0.3f, 0.9f);
 
             var labelGo = new GameObject("Label", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text));
             labelGo.transform.SetParent(go.transform, false);
             var lrt = labelGo.GetComponent<RectTransform>();
             lrt.anchorMin = new Vector2(0.5f, 0); lrt.anchorMax = new Vector2(0.5f, 0);
-            lrt.anchoredPosition = new Vector2(0, -28);
-            lrt.sizeDelta = new Vector2(160, 36);
+            lrt.anchoredPosition = new Vector2(0, -18);
+            lrt.sizeDelta = new Vector2(160, 32);
             var t = labelGo.GetComponent<Text>();
             t.font = _font; t.fontSize = 22; t.color = Color.white;
             t.alignment = TextAnchor.MiddleCenter;
-            t.text = s.labelFa + " 1"; t.raycastTarget = false;
+            t.text = s.labelFa + " 1";
+            t.raycastTarget = false;
+
+            var bn = new GameObject("Bn", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text));
+            bn.transform.SetParent(badge.transform, false);
+            var bnrt = bn.GetComponent<RectTransform>();
+            bnrt.anchorMin = Vector2.zero; bnrt.anchorMax = Vector2.one;
+            bnrt.offsetMin = bnrt.offsetMax = Vector2.zero;
+            var bt = bn.GetComponent<Text>();
+            bt.font = _font; bt.fontSize = 20; bt.color = new Color(1f, 0.75f, 0.3f);
+            bt.alignment = TextAnchor.MiddleCenter;
+            bt.text = "1";
+            bt.raycastTarget = false;
 
             _markers[s.type] = rt;
-
-            if (s.type == BuildingType.Citadel)
-            {
-                var glow = new GameObject("Glow", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
-                glow.transform.SetParent(go.transform, false);
-                glow.transform.SetAsFirstSibling();
-                glow.GetComponent<RectTransform>().sizeDelta = new Vector2(180, 180);
-                glow.GetComponent<Image>().color = new Color(1f, 0.5f, 0.15f, 0.25f);
-            }
+            _icons[s.type] = img;
         }
 
         void OnUpgraded(BuildingType type, int level) => RefreshLevels();
@@ -110,10 +132,13 @@ namespace AshenCitadel.World
                 if (!_markers.TryGetValue(s.type, out var rt)) continue;
                 int lv = bm.GetLevel(s.type);
                 rt.gameObject.SetActive(lv > 0);
-                var label = rt.GetComponentInChildren<Text>();
-                if (label != null) label.text = s.labelFa + " " + lv;
-                float scale = 1f + (lv - 1) * 0.06f;
-                rt.localScale = Vector3.one * Mathf.Min(scale, 1.4f);
+                var texts = rt.GetComponentsInChildren<Text>();
+                if (texts.Length > 0) texts[0].text = s.labelFa + " " + lv;
+                if (texts.Length > 1) texts[1].text = lv.ToString();
+                float scale = 1f + (lv - 1) * 0.05f;
+                rt.localScale = Vector3.one * Mathf.Min(scale, 1.35f);
+                if (_icons.TryGetValue(s.type, out var img) && img != null)
+                    img.sprite = BuildingSpriteFactory.Create(s.type, Mathf.Max(1, lv));
             }
         }
 
