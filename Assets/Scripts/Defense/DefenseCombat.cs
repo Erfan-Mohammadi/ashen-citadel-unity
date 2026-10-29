@@ -9,7 +9,7 @@ namespace AshenCitadel.Defense
     public class DefenseCombat : MonoBehaviour
     {
         public static DefenseCombat Instance { get; private set; }
-
+        public const int MaxBalancedWave = 20;
         public int wave = 1;
         public bool running;
 
@@ -24,6 +24,7 @@ namespace AshenCitadel.Defense
         public class EnemyUnit
         {
             public float x, y, hp, maxHp, speed;
+            public bool isElite;
         }
 
         public List<CombatUnit> heroes = new List<CombatUnit>();
@@ -39,6 +40,47 @@ namespace AshenCitadel.Defense
             if (Instance != null && Instance != this) { Destroy(gameObject); return; }
             Instance = this;
         }
+
+        public static int EnemyCount(int w)
+        {
+            w = Mathf.Max(1, w);
+            if (w <= 2) return 2;
+            if (w <= 5) return 2 + (w - 2);
+            if (w <= 10) return 4 + (w - 5) / 2;
+            if (w <= 15) return 6 + (w - 10) / 2;
+            return Mathf.Min(8 + (w - 15) / 2, 12);
+        }
+
+        public static float EnemyHp(int w)
+        {
+            w = Mathf.Max(1, w);
+            if (w == 1) return 26f;
+            if (w == 2) return 34f;
+            if (w <= 5) return 30f + w * 10f;
+            if (w <= 10) return 70f + (w - 5) * 14f;
+            if (w <= 15) return 140f + (w - 10) * 18f;
+            return 230f + (w - 15) * 22f;
+        }
+
+        public static float EnemySpeed(int w)
+        {
+            if (w <= 2) return 0.26f;
+            if (w <= 5) return 0.30f;
+            if (w <= 10) return 0.34f;
+            if (w <= 15) return 0.38f;
+            return 0.42f;
+        }
+
+        public static float HeroDamageScale(int w)
+        {
+            if (w <= 2) return 0.11f;
+            if (w <= 5) return 0.09f;
+            if (w <= 10) return 0.075f;
+            if (w <= 15) return 0.065f;
+            return 0.055f;
+        }
+
+        public static bool IsBossWave(int w) => w > 0 && w % 5 == 0;
 
         public void StartWave()
         {
@@ -60,18 +102,32 @@ namespace AshenCitadel.Defense
                     });
                 }
             }
+            if (heroes.Count == 0)
+            {
+                heroes.Add(new CombatUnit
+                {
+                    name = "نگهبان", x = 160, y = 310,
+                    hp = 350, maxHp = 350, atk = 40, role = HeroRole.Vanguard, atkCd = 0
+                });
+            }
 
-            int count = wave <= 2 ? 2 : Mathf.Min(2 + Mathf.FloorToInt(wave * 0.7f), 8);
-            float baseHp = wave == 1 ? 28 : wave == 2 ? 40 : 50 + wave * 18;
-            float baseSpeed = wave <= 2 ? 0.28f : 0.45f;
+            int count = EnemyCount(wave);
+            float baseHp = EnemyHp(wave);
+            float baseSpeed = EnemySpeed(wave);
+            bool boss = IsBossWave(wave);
+
             for (int i = 0; i < count; i++)
             {
+                bool elite = boss && i == 0;
+                float hp = elite ? baseHp * 2.2f : baseHp;
+                float spd = elite ? baseSpeed * 0.85f : baseSpeed;
                 enemies.Add(new EnemyUnit
                 {
                     x = 50 + Random.Range(0f, 260f),
-                    y = -30 - i * 50,
-                    hp = baseHp, maxHp = baseHp,
-                    speed = baseSpeed * Random.Range(0.9f, 1.15f)
+                    y = -30 - i * 48,
+                    hp = hp, maxHp = hp,
+                    speed = spd * Random.Range(0.92f, 1.12f),
+                    isElite = elite
                 });
             }
 
@@ -84,7 +140,7 @@ namespace AshenCitadel.Defense
         {
             if (!running) return;
             float dt = Time.deltaTime * 60f;
-            float dmgScale = wave <= 2 ? 0.09f : 0.05f;
+            float dmgScale = HeroDamageScale(wave);
 
             foreach (var e in enemies)
             {
@@ -94,7 +150,11 @@ namespace AshenCitadel.Defense
                 {
                     if (h.hp <= 0) continue;
                     if (Mathf.Abs(e.x - h.x) < 55 && e.y > h.y - 45 && e.y < h.y + 20)
-                        h.hp -= (wave <= 2 ? 0.12f : 0.3f) * dt;
+                    {
+                        float touch = wave <= 3 ? 0.10f : wave <= 10 ? 0.18f : 0.26f;
+                        if (e.isElite) touch *= 1.35f;
+                        h.hp -= touch * dt;
+                    }
                 }
             }
 
@@ -109,12 +169,19 @@ namespace AshenCitadel.Defense
                 {
                     if (e.hp <= 0 || e.y < 40) continue;
                     float d = Mathf.Abs(e.x - h.x) + Mathf.Abs(e.y - h.y);
-                    if (d < best && d < 180) { best = d; target = e; }
+                    if (d < best && d < 190) { best = d; target = e; }
                 }
                 if (target != null)
                 {
-                    target.hp -= h.atk * dmgScale * 8f;
-                    h.atkCd = h.role == HeroRole.Destroyer ? 18 : 24;
+                    float mult = h.role == HeroRole.Destroyer ? 1.15f : h.role == HeroRole.Support ? 0.75f : 1f;
+                    target.hp -= h.atk * dmgScale * 8f * mult;
+                    h.atkCd = h.role == HeroRole.Destroyer ? 16 : h.role == HeroRole.Support ? 28 : 22;
+                    if (h.role == HeroRole.Support)
+                    {
+                        foreach (var ally in heroes)
+                            if (ally.hp > 0 && ally.hp < ally.maxHp)
+                                ally.hp = Mathf.Min(ally.maxHp, ally.hp + h.atk * 0.04f);
+                    }
                 }
             }
 
@@ -127,9 +194,7 @@ namespace AshenCitadel.Defense
             if (!enemiesAlive)
             {
                 running = false;
-                ResourceManager.Instance?.Add(ResourceType.Wood, 40 + wave * 18);
-                ResourceManager.Instance?.Add(ResourceType.Stone, 25 + wave * 12);
-                ResourceManager.Instance?.Add(ResourceType.Crystal, 1 + wave / 2);
+                GrantRewards();
                 wave++;
                 Missions.MissionManager.Instance?.Track("defend");
                 SaveSystem.Instance?.Save();
@@ -140,11 +205,25 @@ namespace AshenCitadel.Defense
             {
                 running = false;
                 HeatSystem.Instance?.ApplyDefeatPenalty();
-                ResourceManager.Instance?.Add(ResourceType.Food, -20);
+                ResourceManager.Instance?.Add(ResourceType.Food, -Mathf.Min(20, 8 + wave));
                 SaveSystem.Instance?.Save();
                 Core.AudioManager.Instance?.Play("lose");
                 OnWaveLost?.Invoke();
             }
+        }
+
+        void GrantRewards()
+        {
+            var r = ResourceManager.Instance;
+            if (r == null) return;
+            int w = wave;
+            r.Add(ResourceType.Wood, 35 + w * 16);
+            r.Add(ResourceType.Stone, 22 + w * 11);
+            r.Add(ResourceType.Food, 15 + w * 6);
+            int crystal = (w / 3) + (IsBossWave(w) ? 3 : 0);
+            if (crystal > 0) r.Add(ResourceType.Crystal, crystal);
+            if (w >= 5) r.Add(ResourceType.Iron, 3 + w / 2);
+            if (IsBossWave(w)) HeatSystem.Instance?.AddHeat(12f);
         }
     }
 }
