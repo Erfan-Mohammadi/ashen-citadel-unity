@@ -11,6 +11,9 @@ namespace AshenCitadel.UI
     {
         void Awake()
         {
+            Application.targetFrameRate = 60;
+            Input.multiTouchEnabled = true;
+
             Ensure<GameManager>();
             Ensure<ResourceManager>();
             Ensure<HeatSystem>();
